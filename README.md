@@ -1,6 +1,8 @@
 # 📰 Open-Tech Zine: Scalable Editorial Workflows
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+**By** : SAMUELSON G
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/Samuelson777/open-tech-zine-workflow/blob/main/LICENSE)
 [![Git LFS](https://img.shields.io/badge/Git%20LFS-Enabled-orange.svg)](https://git-lfs.github.com/)
 [![Web UI](https://img.shields.io/badge/Web%20UI-HTML5%20%7C%20Vanilla%20JS-success.svg)]()
 
@@ -62,10 +64,12 @@ Because this repository relies on large binary design files (`.indd`), you must 
 git lfs install
 
 # Clone the repository
-git clone [https://github.com/your-username/open-tech-zine.git](https://github.com/your-username/open-tech-zine.git)
+git clone [https://github.com/your-Samuelson777/open-tech-zine-workflow.git](https://github.com/Samuelson777/open-tech-zine-workflow.git)
 
 # Navigate into the directory
-cd open-tech-zine
+cd open-tech-zine-workflow
+
+```
 
 ### 2. Verify Git Attributes
 
@@ -142,7 +146,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](https://www.google.com/search?q=LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/Samuelson777/open-tech-zine-workflow/blob/main/LICENSE) file for details.
 
 ```
 
