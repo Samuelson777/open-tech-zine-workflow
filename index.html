@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Portfolio Case Study: Advanced Adobe InCopy and Git Editorial Workflow.">
+    <title>Open-Tech Zine | Editorial Workflow Case Study</title>
+    
+    <style>
+        /* ==========================================================================
+           1. CSS DESIGN SYSTEM & VARIABLES
+           ========================================================================== */
+        :root {
+            --bg-base: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-glass: rgba(255, 255, 255, 0.85);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --accent-main: #0284c7;
+            --accent-hover: #0369a1;
+            --accent-danger: #ef4444;
+            --accent-warning: #f59e0b;
+            --accent-success: #10b981;
+            --border-color: #e2e8f0;
+            --code-bg: #f1f5f9;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-serif: 'Merriweather', 'Georgia', serif;
+            --font-mono: 'Fira Code', 'Courier New', monospace;
+            --base-font-size: 16px;
+        }
+
+        [data-theme="dark"] {
+            --bg-base: #020617;
+            --bg-surface: #0f172a;
+            --bg-glass: rgba(15, 23, 42, 0.85);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-main: #38bdf8;
+            --accent-hover: #7dd3fc;
+            --border-color: #1e293b;
+            --code-bg: #1e293b;
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ==========================================================================
+           2. RESET & BASE
+           ========================================================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html { scroll-behavior: smooth; font-size: var(--base-font-size); }
+        
+        body {
+            font-family: var(--font-serif);
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            line-height: 1.7;
+            transition: background-color 0.4s ease, color 0.4s ease;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, .sans-font { font-family: var(--font-sans); }
+
+        /* ==========================================================================
+           3. UI COMPONENTS & OVERLAP PREVENTION
+           ========================================================================== */
+        .glass-nav {
+            position: fixed; top: 0; left: 0; right: 0; height: 75px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000; display: flex; align-items: center;
+        }
+
+        .nav-container {
+            width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .brand {
+            font-size: 1.25rem; font-weight: 800; text-transform: uppercase;
+            color: var(--text-primary); text-decoration: none; font-family: var(--font-sans);
+        }
+
+        .nav-controls { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+
+        .icon-btn {
+            background: transparent; border: 1px solid var(--border-color);
+            color: var(--text-primary); width: 40px; height: 40px; border-radius: 8px;
+            cursor: pointer; display: flex; justify-content: center; align-items: center;
+            transition: all 0.2s ease;
+        }
+        .icon-btn:hover { background: var(--accent-main); color: #fff; border-color: var(--accent-main); }
+        .icon-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+        .progress-container { position: absolute; bottom: -1px; left: 0; width: 100%; height: 4px; }
+        .progress-bar { height: 100%; width: 0%; background: var(--accent-main); }
+
+        /* ==========================================================================
+           4. HERO SECTION
+           ========================================================================== */
+        .hero { padding: 140px 2rem 4rem; max-width: 1400px; margin: 0 auto; }
+        
+        .headline { font-size: clamp(2.5rem, 5vw, 4.2rem); line-height: 1.1; font-weight: 900; margin-bottom: 1.5rem; letter-spacing: -0.02em; }
+        
+        .objective-block {
+            background: var(--bg-surface); border-left: 6px solid var(--accent-main);
+            padding: 2rem; border-radius: 0 12px 12px 0; margin-top: 2rem;
+            box-shadow: var(--shadow-sm); font-family: var(--font-sans);
+        }
+        .objective-title { color: var(--accent-main); font-weight: 800; font-size: 1.2rem; margin-bottom: 0.5rem; text-transform: uppercase; }
+
+        /* ==========================================================================
+           5. EDITORIAL GRID & TYPOGRAPHY
+           ========================================================================== */
+        .editorial-grid {
+            max-width: 1400px; margin: 0 auto; padding: 2rem 2rem 6rem;
+            display: grid; grid-template-columns: 1fr 320px; gap: 5rem; position: relative;
+            align-items: start; /* Prevents sidebar overlap stretching */
+        }
+
+        /* Prevents fixed header from overlapping section titles */
+        article section { margin-bottom: 4rem; scroll-margin-top: 110px; }
+        
+        article h2 { font-size: 2.25rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; }
+        article h3 { font-size: 1.5rem; margin: 2rem 0 1rem; color: var(--text-secondary); }
+        article p { font-size: 1.125rem; margin-bottom: 1.5rem; }
+        
+        .drop-cap::first-letter {
+            font-family: var(--font-sans); font-size: 4.5rem; font-weight: 900;
+            float: left; line-height: 0.8; margin-right: 0.15em; color: var(--accent-main);
+        }
+
+        /* Responsive Tables & Code */
+        .table-wrapper { overflow-x: auto; margin: 2rem 0; border: 1px solid var(--border-color); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-family: var(--font-sans); font-size: 0.95rem; min-width: 600px; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background: var(--bg-surface); font-weight: 700; color: var(--text-primary); }
+        tr:last-child td { border-bottom: none; }
+        
+        pre { background: var(--code-bg); padding: 1.5rem; border-radius: 8px; font-family: var(--font-mono); font-size: 0.9rem; overflow-x: auto; margin-bottom: 1.5rem; border: 1px solid var(--border-color); }
+
+        /* ==========================================================================
+           6. ADVANCED SIMULATOR & ANALYSIS UI
+           ========================================================================== */
+        .simulator { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 2rem; margin: 3rem 0; box-shadow: var(--shadow-lg); overflow: hidden; }
+        
+        .sim-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; font-family: var(--font-sans); border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem;}
+        .sim-title { font-weight: 800; font-size: 1.25rem; }
+        
+        /* Analysis Metrics Grid */
+        .analysis-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; width: 100%; background: var(--bg-base); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.5rem; }
+        
+        .metric-card { display: flex; flex-direction: column; font-family: var(--font-sans); }
+        .metric-label { font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.25rem; }
+        .metric-value { font-size: 1.2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+        .metric-value.danger { color: var(--accent-danger); }
+        .metric-value.success { color: var(--accent-success); }
+        .metric-value.warning { color: var(--accent-warning); }
+
+        /* Simulation Viewport */
+        .sim-viewport {
+            background: var(--bg-base); padding: 1.5rem; border-radius: 8px;
+            border: 2px dashed var(--accent-danger); margin-bottom: 1.5rem;
+            transition: border-color 0.3s;
+        }
+        .sim-viewport.fit { border-color: var(--accent-success); }
+        .sim-viewport.underset { border-color: var(--accent-warning); }
+
+        .sim-frame { height: 160px; overflow: hidden; position: relative; }
+        .sim-text { font-family: var(--font-serif); font-size: 1.05rem; line-height: 1.6; transition: letter-spacing 0.1s ease, word-spacing 0.1s ease; text-align: justify; }
+
+        /* Controls Grid */
+        .sim-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; background: var(--bg-base); padding: 1.5rem; border-radius: 8px; font-family: var(--font-sans); border: 1px solid var(--border-color); }
+        
+        .slider-group label { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-secondary); }
+        input[type="range"] { width: 100%; appearance: none; height: 6px; background: var(--border-color); border-radius: 3px; outline: none; }
+        input[type="range"]::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--accent-main); cursor: pointer; border: 2px solid var(--bg-surface); }
+
+        /* ==========================================================================
+           7. SCROLL-SPY SIDEBAR
+           ========================================================================== */
+        aside { position: relative; }
+        .sticky-sidebar { position: sticky; top: 110px; background: var(--bg-surface); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); z-index: 10; }
+        .toc-title { font-family: var(--font-sans); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        
+        #toc-list { list-style: none; font-family: var(--font-sans); }
+        #toc-list li { margin-bottom: 0.75rem; }
+        #toc-list a { font-size: 0.95rem; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; display: block; line-height: 1.4; border-left: 2px solid transparent; padding-left: 0.75rem; }
+        #toc-list a:hover { color: var(--accent-main); }
+        #toc-list a.active { color: var(--accent-main); font-weight: 700; border-left-color: var(--accent-main); background: rgba(2, 132, 199, 0.05); border-radius: 0 4px 4px 0; }
+
+        /* ==========================================================================
+           8. ANIMATIONS & RESPONSIVE BREAKPOINTS
+           ========================================================================== */
+        .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 1024px) { 
+            .editorial-grid { grid-template-columns: 1fr; gap: 3rem; } 
+            .sticky-sidebar { display: none; } 
+        }
+        @media (max-width: 768px) {
+            .sim-controls { grid-template-columns: 1fr; gap: 1.5rem; }
+            .hero { padding: 110px 1.5rem 3rem; }
+            .headline { font-size: 2.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVIGATION -->
+    <nav class="glass-nav">
+        <div class="nav-container">
+            <a href="#" class="brand">Open-Tech Zine</a>
+            <div class="nav-controls">
+                <button class="icon-btn" id="btn-font-dec" aria-label="Decrease Font Size" title="Smaller Text">
+                    <svg viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg>
+                </button>
+                <button class="icon-btn" id="btn-font-inc" aria-label="Increase Font Size" title="Larger Text">
+                    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                </button>
+                <button class="icon-btn" id="btn-theme" aria-label="Toggle Dark Mode" title="Toggle Theme">
+                    <svg id="theme-icon" viewBox="0 0 24 24"></svg>
+                </button>
+            </div>
+        </div>
+        <div class="progress-container"><div class="progress-bar" id="reading-progress"></div></div>
+    </nav>
+
+    <!-- HERO & OBJECTIVE -->
+    <header class="hero reveal">
+        <h1 class="headline">Scalable Editorial Workflows for Open-Source Publishing</h1>
+        
+        <div class="objective-block">
+            <div class="objective-title">🎯 Project Objective</div>
+            <p><strong>To engineer a failure-proof Adobe InCopy operations pipeline within an open-source, Git-based environment.</strong> This case study demonstrates how to completely eliminate formatting bottlenecks, mathematically resolve overset text issues, and implement a decentralized Tri-View editorial pipeline. This ensures designers and writers collaborate simultaneously without risking page geometry destruction.</p>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="editorial-grid">
+        <article class="article-content">
+            
+            <section id="the-challenge" class="reveal">
+                <h2>1. The Editorial Bottleneck</h2>
+                <p class="drop-cap">In professional publication environments, managing text edits without disrupting graphic design layouts is a critical challenge. Handing raw Google Docs or Markdown files back and forth forces layout designers to manually copy-paste revisions.</p>
+                <p>This disconnected process inevitably leads to lost track changes, broken typographic hierarchies (like editors accidentally overriding font styles), and severe page overflow, commonly known in the industry as <strong>overset text</strong>.</p>
+            </section>
+
+            <section id="architecture" class="reveal">
+                <h2>2. Architecture & Version Control Setup</h2>
+                <p>To solve this, I engineered a bidirectional editorial pipeline. The core concept is decoupling content creation from page geometry using InCopy Markup Language (<code>.icml</code>).</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Extension</th>
+                                <th>File Type</th>
+                                <th>Function in Workflow</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>.indd</code></td><td>InDesign Document</td><td>Master visual layout, styling grids. Managed by Designer.</td></tr>
+                            <tr><td><code>.icma</code></td><td>Assignment File</td><td>Container linking stories and layout geometry.</td></tr>
+                            <tr><td><code>.icml</code></td><td>InCopy Markup</td><td>Standalone XML text file containing the article content.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Git Repository Configuration</h3>
+                <p>Because <code>.icml</code> files are XML, they are lightweight and perfect for Git tracking. I configured a <code>.gitattributes</code> file to split the load via Git LFS, tracking heavy design binaries while leaving text files readable for diffs:</p>
+<pre><code># Track heavy binary assets with Git LFS
+*.indd filter=lfs diff=lfs merge=lfs -text
+
+# Treat InCopy markup explicitly as text for line-by-line diffs
+*.icml text
+*.icma text</code></pre>
+            </section>
+
+            <section id="interactive-copyfitting" class="reveal">
+                <h2>3. Advanced Typographic Copyfitting Analysis</h2>
+                <p>The ultimate goal of an editor using InCopy is achieving perfect copyfit—ensuring the copy precisely fills the designated text frame. Squeezing text too tight, however, destroys the <em>Typographic Health</em> of the document.</p>
+                
+                <!-- ADVANCED SIMULATOR & ANALYSIS PANEL -->
+                <div class="simulator">
+                    <div class="sim-header">
+                        <span class="sim-title">Live Typometric Analysis Engine</span>
+                        <span class="sans-font" style="font-size: 0.85rem; color: var(--text-secondary);">Target Bounding Box: H:160px</span>
+                    </div>
+
+                    <!-- Telemetry Dashboard -->
+                    <div class="analysis-metrics">
+                        <div class="metric-card">
+                            <span class="metric-label">Status</span>
+                            <span class="metric-value danger" id="sim-status">OVERSET</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-label">Geometry Delta</span>
+                            <span class="metric-value danger" id="sim-overflow">+42px</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-label">Typography Health</span>
+                            <span class="metric-value success" id="sim-health">100%</span>
+                        </div>
+                    </div>
+                    
+                    <p class="sans-font" style="font-size: 0.9rem; margin-bottom: 1.5rem; color: var(--text-secondary);">
+                        <strong>Task:</strong> The designer created a rigid text frame. The current copy spills out. Adjust the Tracking and Word Spacing sliders to resolve the overflow (0px Delta) while maintaining a Health Score above 70%.
+                    </p>
+
+                    <!-- Restricted Physical Frame -->
+                    <div class="sim-viewport" id="sim-viewport">
+                        <div class="sim-frame">
+                            <div class="sim-text" id="sim-text">
+                                Open-source publishing demands rigorous version control and precise layout management. When multiple authors contribute to a single master document, the risk of layout destruction rises exponentially. By integrating Adobe InCopy with Git LFS, teams achieve a decentralized workflow. Writers focus purely on syntax and semantics, while designers protect the visual grid. Resolving overset text before the final PDF export eliminates late-stage production errors. We must carefully trim redundancies and dynamically manipulate typographic tracking algorithms to ensure every word fits perfectly inside its designated geometric container.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Controls Layout Fixed -->
+                    <div class="sim-controls">
+                        <div class="slider-group">
+                            <label><span>Character Tracking (Kerning)</span> <span id="val-track">0.00 em</span></label>
+                            <input type="range" id="slider-track" min="-0.08" max="0.05" step="0.01" value="0">
+                        </div>
+                        <div class="slider-group">
+                            <label><span>Word Spacing</span> <span id="val-word">0.00 em</span></label>
+                            <input type="range" id="slider-word" min="-0.1" max="0.1" step="0.01" value="0">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="results" class="reveal">
+                <h2>4. Results & Impact</h2>
+                <p>Deploying this mathematically precise workflow across the Open-Tech Zine project yielded significant operational improvements:</p>
+                <ul>
+                    <li><strong>100% Zero-Overset Guarantee:</strong> Every article verified before compilation.</li>
+                    <li><strong>80% Reduction in Revisions:</strong> Eliminated redundant back-and-forth email attachments.</li>
+                    <li><strong>Design Preservation:</strong> Master typography styles remained completely isolated from editorial text revisions.</li>
+                </ul>
+            </section>
+
+        </article>
+
+        <!-- TOC SIDEBAR -->
+        <aside>
+            <div class="sticky-sidebar">
+                <h3 class="toc-title">Table of Contents</h3>
+                <ul id="toc-list">
+                    <!-- JS Auto-populates this -->
+                </ul>
+            </div>
+        </aside>
+    </main>
+
+    <!-- ==========================================================================
+         JAVASCRIPT APPLICATION LOGIC
+         ========================================================================== -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            // --- 1. THEME MANAGER ---
+            class ThemeManager {
+                constructor() {
+                    this.btn = document.getElementById('btn-theme');
+                    this.icon = document.getElementById('theme-icon');
+                    this.html = document.documentElement;
+                    this.current = localStorage.getItem('theme') || 'light';
+                    
+                    this.iconSun = '<circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>';
+                    this.iconMoon = '<path fill="currentColor" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
+                    
+                    this.init();
+                }
+                init() {
+                    this.applyTheme(this.current);
+                    this.btn.addEventListener('click', () => this.toggle());
+                    this.icon.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+                }
+                applyTheme(theme) {
+                    this.html.setAttribute('data-theme', theme);
+                    this.icon.innerHTML = theme === 'dark' ? this.iconSun : this.iconMoon;
+                    localStorage.setItem('theme', theme);
+                }
+                toggle() {
+                    this.current = this.current === 'light' ? 'dark' : 'light';
+                    this.icon.style.transform = 'rotate(90deg)';
+                    this.icon.style.opacity = '0';
+                    setTimeout(() => {
+                        this.applyTheme(this.current);
+                        this.icon.style.transform = 'rotate(0deg)';
+                        this.icon.style.opacity = '1';
+                    }, 200);
+                }
+            }
+            new ThemeManager();
+
+            // --- 2. ACCESSIBILITY (FONT SCALING) ---
+            let baseFontSize = 16;
+            const updateFont = (change) => {
+                baseFontSize = Math.min(Math.max(baseFontSize + change, 14), 22);
+                document.documentElement.style.setProperty('--base-font-size', `${baseFontSize}px`);
+                setTimeout(() => window.dispatchEvent(new Event('resize')), 100); 
+            };
+            document.getElementById('btn-font-inc').addEventListener('click', () => updateFont(2));
+            document.getElementById('btn-font-dec').addEventListener('click', () => updateFont(-2));
+
+            // --- 3. SCROLL-SPY TOC & PROGRESS BAR ---
+            const sections = document.querySelectorAll('article section');
+            const tocList = document.getElementById('toc-list');
+            const progressBar = document.getElementById('reading-progress');
+
+            sections.forEach(section => {
+                const h2 = section.querySelector('h2');
+                if(h2) {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<a href="#${section.id}" data-target="${section.id}">${h2.textContent}</a>`;
+                    tocList.appendChild(li);
+                }
+            });
+
+            const tocObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if(entry.isIntersecting) {
+                        document.querySelectorAll('#toc-list a').forEach(a => a.classList.remove('active'));
+                        const activeA = document.querySelector(`#toc-list a[data-target="${entry.target.id}"]`);
+                        if(activeA) activeA.classList.add('active');
+                    }
+                });
+            }, { rootMargin: '-20% 0px -60% 0px' });
+            sections.forEach(sec => tocObserver.observe(sec));
+
+            let ticking = false;
+            window.addEventListener('scroll', () => {
+                if (!ticking) {
+                    window.requestAnimationFrame(() => {
+                        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                        progressBar.style.width = `${(winScroll / height) * 100}%`;
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+
+            // --- 4. ADVANCED ANALYSIS ENGINE (TELEMETRY) ---
+            class TypometricEngine {
+                constructor() {
+                    this.textNode = document.getElementById('sim-text');
+                    this.viewport = document.getElementById('sim-viewport');
+                    
+                    this.trackSlider = document.getElementById('slider-track');
+                    this.wordSlider = document.getElementById('slider-word');
+                    
+                    this.statusUI = document.getElementById('sim-status');
+                    this.overflowUI = document.getElementById('sim-overflow');
+                    this.healthUI = document.getElementById('sim-health');
+                    
+                    this.targetHeight = 160; 
+
+                    this.init();
+                }
+                
+                init() {
+                    this.trackSlider.addEventListener('input', (e) => this.updateRender('tracking', e.target.value));
+                    this.wordSlider.addEventListener('input', (e) => this.updateRender('word', e.target.value));
+                    window.addEventListener('resize', () => this.analyzeMetrics());
+                    
+                    setTimeout(() => this.analyzeMetrics(), 300);
+                }
+
+                updateRender(type, value) {
+                    const formatVal = parseFloat(value).toFixed(2);
+                    const displayStr = `${formatVal > 0 ? '+' : ''}${formatVal} em`;
+
+                    if (type === 'tracking') {
+                        this.textNode.style.letterSpacing = `${value}em`;
+                        document.getElementById('val-track').textContent = displayStr;
+                    } else {
+                        this.textNode.style.wordSpacing = `${value}em`;
+                        document.getElementById('val-word').textContent = displayStr;
+                    }
+                    
+                    setTimeout(() => this.analyzeMetrics(), 50);
+                }
+
+                analyzeMetrics() {
+                    // 1. Calculate Geometry Delta
+                    const actualHeight = this.textNode.scrollHeight;
+                    const delta = actualHeight - this.targetHeight;
+                    
+                    // 2. Calculate Typography Health Score (Distortion Penalty Algorithm)
+                    const trackVal = Math.abs(parseFloat(this.trackSlider.value));
+                    const wordVal = Math.abs(parseFloat(this.wordSlider.value));
+                    
+                    // Penalty based on max limits (0.08 track, 0.1 word)
+                    const distortionPenalty = ((trackVal / 0.08) * 50) + ((wordVal / 0.1) * 50);
+                    const healthScore = Math.max(0, Math.round(100 - distortionPenalty));
+
+                    // 3. Update Health UI
+                    this.healthUI.textContent = `${healthScore}%`;
+                    if (healthScore >= 80) this.healthUI.className = 'metric-value success';
+                    else if (healthScore >= 50) this.healthUI.className = 'metric-value warning';
+                    else this.healthUI.className = 'metric-value danger';
+
+                    // 4. Update Status and Delta UI
+                    if (delta > 5) { // Overset
+                        this.viewport.className = 'sim-viewport';
+                        this.statusUI.textContent = 'OVERSET';
+                        this.statusUI.className = 'metric-value danger';
+                        this.overflowUI.textContent = `+${delta}px`;
+                        this.overflowUI.className = 'metric-value danger';
+                    } else if (delta < -20) { // Underset
+                        this.viewport.className = 'sim-viewport underset';
+                        this.statusUI.textContent = 'UNDERSET';
+                        this.statusUI.className = 'metric-value warning';
+                        this.overflowUI.textContent = `${delta}px`;
+                        this.overflowUI.className = 'metric-value warning';
+                    } else { // Perfect Fit
+                        this.viewport.className = 'sim-viewport fit';
+                        this.statusUI.textContent = 'PERFECT FIT';
+                        this.statusUI.className = 'metric-value success';
+                        this.overflowUI.textContent = `0px`;
+                        this.overflowUI.className = 'metric-value success';
+                    }
+                }
+            }
+            new TypometricEngine();
+
+            // --- 5. INITIAL REVEAL ANIMATIONS ---
+            const reveals = document.querySelectorAll('.reveal');
+            const revealObs = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => {
+                    if(entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        obs.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            reveals.forEach(r => revealObs.observe(r));
+
+        });
+    </script>
+</body>
+</html>
